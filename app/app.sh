@@ -268,3 +268,5 @@ case "$command" in
         exit 2
         ;;
 esac
+
+THIS_IS_A_CI_FAILURE(
