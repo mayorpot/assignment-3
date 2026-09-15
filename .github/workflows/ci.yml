@@ -1,0 +1,63 @@
+name: DevOps Tool CI
+
+on:
+  push:
+    branches:
+      - "**"
+  pull_request:
+    branches:
+      - "**"
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    name: Validate
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Make scripts executable
+        run: |
+          chmod +x app/app.sh
+          chmod +x scripts/lint.sh
+          chmod +x scripts/build.sh
+          chmod +x tests/test.sh
+
+      - name: Run lint checks
+        run: ./scripts/lint.sh
+
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    needs: validate
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Make application and test executable
+        run: |
+          chmod +x app/app.sh
+          chmod +x tests/test.sh
+
+      - name: Run application tests
+        run: ./tests/test.sh
+
+  docker:
+    name: Docker
+    runs-on: ubuntu-latest
+    needs: test
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Make build script executable
+        run: chmod +x scripts/build.sh
+
+      - name: Build and test Docker image
+        run: ./scripts/build.sh
